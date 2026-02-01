@@ -37,3 +37,11 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+# Ignore all screenshots
+screenshots/*.png
+screenshots/*.jpg
+
+# Ignore test reports
+test-output/
+target/
