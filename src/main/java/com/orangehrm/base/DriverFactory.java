@@ -1,4 +1,5 @@
 package com.orangehrm.base;
+
 import com.orangehrm.config.ConfigReader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -7,9 +8,11 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 
+import java.time.Duration;
+
 public class DriverFactory {
 
-    private static ThreadLocal<WebDriver> tlDriver = new ThreadLocal<>();
+    private static final ThreadLocal<WebDriver> tlDriver = new ThreadLocal<>();
     private static final Logger log = LogManager.getLogger(DriverFactory.class);
 
     public static WebDriver initDriver(String browserName) {
@@ -39,23 +42,27 @@ public class DriverFactory {
                 throw new IllegalArgumentException("Unsupported browser: " + browserName);
         }
 
-        getDriver().manage().deleteAllCookies();
-        getDriver().manage().window().maximize();
-        log.info("Browser launched successfully");
-        return getDriver();
+        WebDriver driver = getDriver();
+        driver.manage().deleteAllCookies();
+        driver.manage().window().maximize();
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+        driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(30));
+
+        log.info("Browser launched and configured successfully");
+        return driver;
     }
 
     public static synchronized WebDriver getDriver() {
-        log.info("Driver instance retrieved successfully");
         return tlDriver.get();
-
     }
 
     public static void quitDriver() {
-        log.info("Quitting driver");
-        if (getDriver() != null) {
-            getDriver().quit();
+        WebDriver driver = tlDriver.get();
+        if (driver != null) {
+            log.info("Quitting driver for thread: {}", Thread.currentThread().getId());
+            driver.quit();
             tlDriver.remove();
+            log.info("Driver quit successfully");
         }
     }
 }
