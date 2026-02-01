@@ -1,38 +1,61 @@
 package com.orangehrm.base;
 import com.orangehrm.config.ConfigReader;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.edge.EdgeDriver;
-
-import java.io.IOException;
+import org.openqa.selenium.firefox.FirefoxDriver;
 
 public class DriverFactory {
-    private WebDriver driver;
-    private ConfigReader configReader;
 
-    public DriverFactory() {
-        configReader = new ConfigReader();
-    }
+    private static ThreadLocal<WebDriver> tlDriver = new ThreadLocal<>();
+    private static final Logger log = LogManager.getLogger(DriverFactory.class);
 
-    public WebDriver initDriver(String BrowserName) throws IOException {
-        if (BrowserName == null || BrowserName.isEmpty()){
-            BrowserName = configReader.getBrowser();
+    public static WebDriver initDriver(String browserName) {
+
+        if (browserName == null || browserName.isEmpty()) {
+            browserName = ConfigReader.getProperty("browser");
+            log.info("Browser not passed from XML. Using default: {}", browserName);
+        } else {
+            log.info("Browser received from XML: {}", browserName);
         }
 
-        switch (BrowserName.toLowerCase()){
+        switch (browserName.toLowerCase()) {
             case "chrome":
-                driver = new ChromeDriver();
+                log.info("Launching Chrome browser");
+                tlDriver.set(new ChromeDriver());
                 break;
             case "firefox":
-                driver = new FirefoxDriver();
+                log.info("Launching Firefox browser");
+                tlDriver.set(new FirefoxDriver());
                 break;
             case "edge":
-                driver = new EdgeDriver();
+                log.info("Launching Edge browser");
+                tlDriver.set(new EdgeDriver());
                 break;
             default:
-                throw new IllegalArgumentException("Unsupported browser: " + BrowserName);
+                log.error("Unsupported browser: {}", browserName);
+                throw new IllegalArgumentException("Unsupported browser: " + browserName);
         }
-        return driver;
+
+        getDriver().manage().deleteAllCookies();
+        getDriver().manage().window().maximize();
+        log.info("Browser launched successfully");
+        return getDriver();
+    }
+
+    public static synchronized WebDriver getDriver() {
+        log.info("Driver instance retrieved successfully");
+        return tlDriver.get();
+
+    }
+
+    public static void quitDriver() {
+        log.info("Quitting driver");
+        if (getDriver() != null) {
+            getDriver().quit();
+            tlDriver.remove();
+        }
     }
 }
