@@ -29,6 +29,13 @@ public class BaseTest {
         loginPage = new LoginPage(driver);
     }
 
+    /**
+     * Helper method to get the thread-safe driver instance.
+     */
+        public WebDriver getDriver() {
+        return DriverFactory.getDriver();
+    }
+
     @AfterMethod
     public void tearDown() {
         log.info("Cleaning up test resources");
