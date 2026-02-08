@@ -5,22 +5,30 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 
+/**
+ * OrangeHRM Dashboard page with navigation to modules
+ */
+
 public class DashboardPage extends BasePage {
 
-    @FindBy(xpath = "//h6[normalize-space()='Dashboard']")
+    @FindBy(xpath = "//h6[text()='Dashboard']")
     private WebElement lblDashboardHeader;
+
+    @FindBy(xpath = "//span[text()='PIM']")
+    private WebElement linkPIM;
 
     public DashboardPage(WebDriver driver) {
         super(driver);
     }
 
     public boolean isDashboardDisplayed() {
-        log.info("Checking if dashboard is displayed");
+        log.info("Checking Dashboard header...");
         return isDisplayed(lblDashboardHeader);
     }
 
-    public String getHeaderText() {
-        log.info("Getting dashboard header text");
-        return getText(lblDashboardHeader);
+    public PIMPage navigateToPIMPage() {
+        log.info("Opening PIM module");
+        click(linkPIM);
+        return new PIMPage(driver);
     }
 }
