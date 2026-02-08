@@ -1,38 +1,39 @@
 package com.orangehrm.base;
 
-import com.orangehrm.config.ConfigReader;
+import com.orangehrm.pages.LoginPage;
+import com.orangehrm.utils.ConfigReader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Parameters;
+import org.testng.annotations.*;
 
+/**
+ * Base class for all test classes
+ */
 public class BaseTest {
 
-    protected static final Logger log = LogManager.getLogger(BaseTest.class);
     protected WebDriver driver;
+    protected LoginPage loginPage;
+    protected static final Logger log = LogManager.getLogger(BaseTest.class);
 
-    @Parameters("browser")
     @BeforeMethod
-    public void setUp(String browser) {
-        log.info("=== Test Setup Started ===");
-        log.info("Setting up browser: {}", browser);
+    @Parameters("browser")
+    public void setUp(@Optional("chrome") String browser) {
+        log.info("Starting test setup for: {}", browser);
 
-        DriverFactory.initDriver(browser);
-        driver = DriverFactory.getDriver();
-
-        String baseUrl = ConfigReader.getProperty("baseUrl");
-        log.info("Navigating to URL: {}", baseUrl);
-        driver.get(baseUrl);
-
-        log.info("=== Test Setup Completed ===");
+        // Initialize driver using factory
+        driver = DriverFactory.initDriver(browser);
+        String url = ConfigReader.getProperty("url");
+        driver.get(url);
+        log.info("Navigated to: {}", url);
+        loginPage = new LoginPage(driver);
     }
 
-    @AfterMethod(alwaysRun = true)
+    @AfterMethod
     public void tearDown() {
-        log.info("=== Test Teardown Started ===");
-        DriverFactory.quitDriver();
-        log.info("=== Test Teardown Completed ===");
+        log.info("Cleaning up test resources");
+        if (driver != null) {
+            DriverFactory.quitDriver();
+        }
     }
 }
