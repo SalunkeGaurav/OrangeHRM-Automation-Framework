@@ -12,6 +12,9 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+/**
+ * ExtentReports utility manager
+ */
 public class ExtentReportManager {
 
     private static final Logger log = LogManager.getLogger(ExtentReportManager.class);
@@ -24,7 +27,6 @@ public class ExtentReportManager {
             String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
             reportPath = "./reports/TestReport_" + timestamp + ".html";
 
-            // Create reports directory if it doesn't exist
             File reportDir = new File("./reports");
             if (!reportDir.exists()) {
                 reportDir.mkdir();
@@ -32,32 +34,33 @@ public class ExtentReportManager {
 
             ExtentSparkReporter sparkReporter = new ExtentSparkReporter(reportPath);
 
-            // Configure report
             sparkReporter.config().setDocumentTitle("OrangeHRM Automation Report");
             sparkReporter.config().setReportName("Test Execution Report");
-            sparkReporter.config().setTheme(Theme.STANDARD);
+            sparkReporter.config().setTheme(Theme.DARK);
             sparkReporter.config().setTimeStampFormat("dd-MM-yyyy HH:mm:ss");
 
             extent = new ExtentReports();
             extent.attachReporter(sparkReporter);
 
-            // System information
             extent.setSystemInfo("Application", "OrangeHRM");
             extent.setSystemInfo("Environment", "QA");
             extent.setSystemInfo("User", System.getProperty("user.name"));
             extent.setSystemInfo("OS", System.getProperty("os.name"));
             extent.setSystemInfo("Java Version", System.getProperty("java.version"));
 
-            log.info("Extent Report initialized at: {}", reportPath);
+            log.info("Report initialized: {}", reportPath);
         }
     }
 
     public static void createTest(String testName) {
         ExtentTest test = extent.createTest(testName);
         extentTest.set(test);
-        log.info("Extent Test created: {}", testName);
+        log.info("Test created: {}", testName);
     }
 
+    /**
+     * Get current test
+     */
     public static ExtentTest getTest() {
         return extentTest.get();
     }
@@ -86,18 +89,21 @@ public class ExtentReportManager {
         if (screenshotPath != null && !screenshotPath.isEmpty()) {
             try {
                 getTest().addScreenCaptureFromPath(screenshotPath);
-                log.info("Screenshot attached to report: {}", screenshotPath);
+                log.info("Screenshot attached: {}", screenshotPath);
             } catch (Exception e) {
                 log.error("Failed to attach screenshot: {}", e.getMessage());
             }
         }
     }
 
+    /**
+     * Flush and save report
+     */
     public static void flushReports() {
         if (extent != null) {
             extent.flush();
-            log.info("Extent Report flushed successfully");
-            log.info("Report available at: {}", reportPath);
+            log.info("Report saved");
+            log.info("Report path: {}", reportPath);
         }
     }
 
