@@ -1,55 +1,74 @@
 package com.orangehrm.base;
 
-import com.orangehrm.config.ConfigReader;
+import com.orangehrm.utils.ConfigReader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.edge.EdgeDriver;
+import org.openqa.selenium.edge.EdgeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxOptions;
 
-import java.time.Duration;
 
-public class DriverFactory {
+/**
+ * Creates and manages WebDriver instances
+ */
+
+   public class DriverFactory {
 
     private static final ThreadLocal<WebDriver> tlDriver = new ThreadLocal<>();
     private static final Logger log = LogManager.getLogger(DriverFactory.class);
 
     public static WebDriver initDriver(String browserName) {
+        boolean isHeadless = Boolean.parseBoolean(ConfigReader.getProperty("headless").toLowerCase());
 
         if (browserName == null || browserName.isEmpty()) {
             browserName = ConfigReader.getProperty("browser");
-            log.info("Browser not passed from XML. Using default: {}", browserName);
-        } else {
-            log.info("Browser received from XML: {}", browserName);
+            log.info("No browser specified, using default: {}", browserName);
         }
 
         switch (browserName.toLowerCase()) {
             case "chrome":
-                log.info("Launching Chrome browser");
-                tlDriver.set(new ChromeDriver());
+                log.info("Starting Chrome (Headless: {})", isHeadless);
+                ChromeOptions chromeOptions = new ChromeOptions();
+                if (isHeadless) {
+                    chromeOptions.addArguments("--headless=new");
+                }
+                tlDriver.set(new ChromeDriver(chromeOptions));
                 break;
+
             case "firefox":
-                log.info("Launching Firefox browser");
-                tlDriver.set(new FirefoxDriver());
+                log.info("Starting Firefox (Headless: {})", isHeadless);
+                FirefoxOptions ffOptions = new FirefoxOptions();
+                if (isHeadless) ffOptions.addArguments("-headless");
+                tlDriver.set(new FirefoxDriver(ffOptions));
                 break;
+
             case "edge":
-                log.info("Launching Edge browser");
-                tlDriver.set(new EdgeDriver());
+                log.info("Starting Edge");
+                EdgeOptions edgeOptions = new EdgeOptions();
+                if (isHeadless) edgeOptions.addArguments("--headless=new");
+                tlDriver.set(new EdgeDriver(edgeOptions));
+
                 break;
             default:
                 log.error("Unsupported browser: {}", browserName);
                 throw new IllegalArgumentException("Unsupported browser: " + browserName);
         }
 
-        WebDriver driver = getDriver();
-        driver.manage().deleteAllCookies();
-        driver.manage().window().maximize();
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
-        driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(30));
+        getDriver().manage().deleteAllCookies();
 
-        log.info("Browser launched and configured successfully");
-        return driver;
+          //Set window size if headless mode is enabled
+        if (isHeadless) {
+            getDriver().manage().window().setSize(new org.openqa.selenium.Dimension(1920, 1080));
+            log.info("Headless mode: Window set to 1920x1080");
+        } else {
+            getDriver().manage().window().maximize();
+        }
+
+        return getDriver();
     }
 
     public static synchronized WebDriver getDriver() {
@@ -57,12 +76,10 @@ public class DriverFactory {
     }
 
     public static void quitDriver() {
-        WebDriver driver = tlDriver.get();
-        if (driver != null) {
-            log.info("Quitting driver for thread: {}", Thread.currentThread().getId());
-            driver.quit();
+        if (getDriver() != null) {
+            getDriver().quit();
             tlDriver.remove();
-            log.info("Driver quit successfully");
+            log.info("Driver cleaned up from ThreadLocal");
         }
     }
 }
