@@ -31,7 +31,6 @@ public class BasePage {
 
     /**
      * Get unique thread ID for parallel tests
-     * Helps keep test data separate when running multiple tests at once.
      * @return thread ID as string
      */
     public String getThreadSpecificID() {
@@ -40,7 +39,6 @@ public class BasePage {
 
     /**
      * Wait for OrangeHRM spinners to disappear
-     * This prevents "element not clickable" errors that happen when the page is still loading.
      */
     public void waitForLoaderToDisappear() {
         try {
@@ -53,6 +51,10 @@ public class BasePage {
     }
 
     protected void click(WebElement element) {
+        if (element == null) {
+            log.error("Cannot click - element is null");
+            return;
+        }
         waitForLoaderToDisappear();
         waitUtils.waitForClickable(element);
         try {
@@ -64,6 +66,10 @@ public class BasePage {
     }
 
     protected void type(WebElement element, String text) {
+        if (element == null || text == null) {
+            log.error("Cannot type - element or text is null");
+            return;
+        }
         waitForLoaderToDisappear();
         waitUtils.waitForVisibility(element);
         waitUtils.waitForClickable(element);
@@ -72,17 +78,26 @@ public class BasePage {
     }
 
     protected boolean isDisplayed(WebElement element) {
+        if (element == null) {
+            log.error("Cannot check is displayed - element is null");
+            return false;
+        }
+
         try {
             waitForLoaderToDisappear();
             waitUtils.waitForVisibility(element);
             return element.isDisplayed();
         } catch (Exception e) {
-            log.error("element not Displayed: {}", element.toString());
+            log.error("element not displayed: {}", element.toString());
             return false;
         }
     }
 
     protected String getText(WebElement element) {
+        if (element == null) {
+            log.error("Cannot get text - element is null");
+            return null;
+        }
         waitForLoaderToDisappear();
         waitUtils.waitForVisibility(element);
         return element.getText();
