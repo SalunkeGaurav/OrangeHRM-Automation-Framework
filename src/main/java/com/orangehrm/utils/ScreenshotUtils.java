@@ -8,31 +8,39 @@ import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 
 import java.io.File;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+/**
+ * Screenshot capture utility
+ */
 public class ScreenshotUtils {
 
     private static final Logger log = LogManager.getLogger(ScreenshotUtils.class);
 
     public static String captureScreenshot(WebDriver driver, String testName) {
-        String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String fileName = testName + "_" + timestamp + ".png";
-        String screenshotPath = "./screenshots/" + fileName;
-
         try {
+            String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+            String fileName = testName + "_" + timestamp + ".png";
+
             TakesScreenshot ts = (TakesScreenshot) driver;
             File source = ts.getScreenshotAs(OutputType.FILE);
+
+            String screenshotDir = System.getProperty("user.dir") + "/screenshots/";
+            File directory = new File(screenshotDir);
+            if (!directory.exists()) {
+                directory.mkdirs();
+            }
+
+            String screenshotPath = screenshotDir + fileName;
             File destination = new File(screenshotPath);
 
-            destination.getParentFile().mkdirs();
-
             FileUtils.copyFile(source, destination);
-            log.info("Screenshot captured: {}", screenshotPath);
-            return screenshotPath;
+            log.info("Screenshot saved: {}", screenshotPath);
 
-        } catch (IOException e) {
+            return "../screenshots/" + fileName;
+
+        } catch (Exception e) {
             log.error("Failed to capture screenshot: {}", e.getMessage());
             return null;
         }
