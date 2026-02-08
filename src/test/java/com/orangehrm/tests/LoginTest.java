@@ -1,57 +1,46 @@
 package com.orangehrm.tests;
 
 import com.orangehrm.base.BaseTest;
-import com.orangehrm.config.ConfigReader;
-import com.orangehrm.pages.DashboardPage;
 import com.orangehrm.pages.LoginPage;
-import com.orangehrm.utils.ExtentReportManager;
+import com.orangehrm.pages.DashboardPage;
+import com.orangehrm.testdata.TestDataProvider;
+import com.orangehrm.utils.ConfigReader;
 import org.testng.Assert;
-import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 
-@Listeners(com.orangehrm.listeners.TestListener.class)
+/**
+ * Login functionality tests
+ */
 public class LoginTest extends BaseTest {
 
-    @Test
-    public void verifyValidLogin() {
+    @Test(groups = {"login", "smoke"}, priority = 1, description = "Verify valid login and dashboard display")
+    public void testValidLogin() {
         log.info("Starting valid login test");
-        ExtentReportManager.logInfo("Starting valid login test");
-
-        LoginPage loginPage = new LoginPage(driver);
-        String username = ConfigReader.getProperty("username");
-        String password = ConfigReader.getProperty("password");
-
-        log.info("Attempting login with username: {}", username);
-        ExtentReportManager.logInfo("Attempting login with username: " + username);
-
-        DashboardPage dashboardPage = loginPage.login(username, password);
-
-        log.info("Verifying dashboard is displayed");
-        ExtentReportManager.logInfo("Verifying dashboard is displayed");
-
-        Assert.assertTrue(dashboardPage.isDashboardDisplayed(),
-                "Login failed - Dashboard not displayed");
-
-        ExtentReportManager.logPass("Dashboard displayed successfully");
-        log.info("Valid login test completed successfully");
-    }
-
-    @Test
-    public void verifyInvalidLogin() {
-        log.info("Starting invalid login test");
-        ExtentReportManager.logInfo("Starting invalid login test");
-
         LoginPage loginPage = new LoginPage(driver);
 
-        log.info("Attempting login with invalid credentials");
-        ExtentReportManager.logInfo("Attempting login with invalid credentials");
+        Assert.assertTrue(loginPage.isLoginButtonDisplayed(), "Login button not visible");
 
-        loginPage.login("InvalidUser", "InvalidPass123");
+        DashboardPage dashboard = loginPage.login(
+                ConfigReader.getProperty("username"),
+                ConfigReader.getProperty("password")
+        );
 
-        Assert.assertTrue(loginPage.isLoginButtonDisplayed(), "Login failed - Dashboard not displayed");
-
-        ExtentReportManager.logPass("Login failed - Dashboard not displayed");
-        log.info("Invalid login test completed successfully");
-
+        Assert.assertTrue(dashboard.isDashboardDisplayed(), "Dashboard not displayed");
+        log.info("Valid login test passed");
     }
+
+    @Test(groups = {"login", "negative"}, priority = 2, dataProvider = "invalidLoginData",
+            dataProviderClass = TestDataProvider.class,
+            description = "Verify negative login scenarios")
+    public void testInvalidLogin(String user, String pass) {
+        log.info("Testing invalid login for: {}", user);
+        LoginPage loginPage = new LoginPage(getDriver());
+        loginPage.login(user, pass);
+
+        Assert.assertTrue(loginPage.isLoginButtonDisplayed(),
+                "Login button missing after failed login");
+
+        log.info("Invalid login test passed for: {}", user);
+    }
+
 }
