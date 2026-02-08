@@ -7,6 +7,7 @@
         <parameter name="browser" value="chrome"/>
         <classes>
             <class name="com.orangehrm.tests.LoginTest"/>
+            <class name="com.orangehrm.tests.EmployeeTest"/>
         </classes>
     </test>
 
@@ -14,6 +15,7 @@
         <parameter name="browser" value="firefox"/>
         <classes>
             <class name="com.orangehrm.tests.LoginTest"/>
+            <class name="com.orangehrm.tests.EmployeeTest"/>
         </classes>
     </test>
 
@@ -21,6 +23,7 @@
         <parameter name="browser" value="edge"/>
         <classes>
             <class name="com.orangehrm.tests.LoginTest"/>
+            <class name="com.orangehrm.tests.EmployeeTest"/>
         </classes>
     </test>
 
