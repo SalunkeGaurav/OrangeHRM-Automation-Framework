@@ -1,92 +1,90 @@
 package com.orangehrm.base;
 
-import com.orangehrm.config.ConfigReader;
+import com.orangehrm.utils.ConfigReader;
+import com.orangehrm.utils.WaitUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
 
-public class BasePage {
+/**
+ * Base class for all page objects
+ */
 
-    protected static final Logger log = LogManager.getLogger(BasePage.class);
+public class BasePage {
     protected WebDriver driver;
-    protected WebDriverWait wait;
+    protected WaitUtils waitUtils;
+    protected static final Logger log = LogManager.getLogger(BasePage.class);
+
+    //Locator for OrangeHRM loading spinners
+    private final By globalLoader = By.cssSelector(".oxd-loading-spinner, .oxd-form-loader");
 
     public BasePage(WebDriver driver) {
         this.driver = driver;
-        long timeout;
+        this.waitUtils = new WaitUtils(driver);
+        PageFactory.initElements(driver, this);
+    }
+
+    /**
+     * Get unique thread ID for parallel tests
+     * Helps keep test data separate when running multiple tests at once.
+     * @return thread ID as string
+     */
+    public String getThreadSpecificID() {
+        return String.valueOf(Thread.currentThread().getId());
+    }
+
+    /**
+     * Wait for OrangeHRM spinners to disappear
+     * This prevents "element not clickable" errors that happen when the page is still loading.
+     */
+    public void waitForLoaderToDisappear() {
         try {
-            timeout = Long.parseLong(ConfigReader.getProperty("explicitWait"));
+            long timeout = Long.parseLong(ConfigReader.getProperty("explicitWait", "10"));
+            new WebDriverWait(driver, Duration.ofSeconds(timeout))
+                    .until(ExpectedConditions.invisibilityOfElementLocated(globalLoader));
         } catch (Exception e) {
-            timeout = 10;
-            log.warn("Could not read explicitWait from config. Using default: {} seconds", timeout);
+            log.debug("No spinner found - page is ready to go!");
         }
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(timeout));
-        PageFactory.initElements(this.driver, this);
-        log.info("{} initialized successfully", this.getClass().getSimpleName());
     }
 
     protected void click(WebElement element) {
+        waitForLoaderToDisappear();
+        waitUtils.waitForClickable(element);
         try {
-            wait.until(ExpectedConditions.elementToBeClickable(element)).click();
+            element.click();
         } catch (Exception e) {
-            log.error("Failed to click element: {}", e.getMessage());
-            throw e;
+            log.warn("Regular click failed, trying JavaScript click for element: {}", element.toString());
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
         }
     }
 
     protected void type(WebElement element, String text) {
-        try {
-            WebElement visibleElement = wait.until(ExpectedConditions.visibilityOf(element));
-            visibleElement.clear();
-            visibleElement.sendKeys(text);
-        } catch (Exception e) {
-            log.error("Failed to type text '{}': {}", text, e.getMessage());
-            throw e;
-        }
-    }
-
-    protected String getText(WebElement element) {
-        try {
-            return wait.until(ExpectedConditions.visibilityOf(element)).getText();
-        } catch (Exception e) {
-            log.error("Failed to get text from element: {}", e.getMessage());
-            throw e;
-        }
+        waitForLoaderToDisappear();
+        waitUtils.waitForVisibility(element);
+        waitUtils.waitForClickable(element);
+        element.clear();
+        element.sendKeys(text);
     }
 
     protected boolean isDisplayed(WebElement element) {
         try {
-            return wait.until(ExpectedConditions.visibilityOf(element)).isDisplayed();
+            waitForLoaderToDisappear();
+            waitUtils.waitForVisibility(element);
+            return element.isDisplayed();
         } catch (Exception e) {
-            log.debug("Element not displayed: {}", e.getMessage());
+            log.error("element not Displayed: {}", element.toString());
             return false;
         }
     }
 
-    protected void waitForVisibility(WebElement element) {
-        wait.until(ExpectedConditions.visibilityOf(element));
-    }
-
-    protected void waitForInvisibility(WebElement element) {
-        wait.until(ExpectedConditions.invisibilityOf(element));
-    }
-
-    protected void navigateTo(String url) {
-        log.info("Navigating to URL: {}", url);
-        driver.get(url);
-    }
-
-    protected String getPageTitle() {
-        return driver.getTitle();
-    }
-
-    protected String getCurrentUrl() {
-        return driver.getCurrentUrl();
+    protected String getText(WebElement element) {
+        waitForLoaderToDisappear();
+        waitUtils.waitForVisibility(element);
+        return element.getText();
     }
 }
