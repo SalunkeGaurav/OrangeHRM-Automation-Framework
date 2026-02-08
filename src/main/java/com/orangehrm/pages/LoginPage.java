@@ -5,6 +5,10 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 
+/**
+ * OrangeHRM login page for user authentication
+ */
+
 public class LoginPage extends BasePage {
 
     @FindBy(name = "username")
@@ -16,42 +20,30 @@ public class LoginPage extends BasePage {
     @FindBy(css = "button[type='submit']")
     private WebElement btnLogin;
 
-    @FindBy(css = ".oxd-alert-content-text")
-    private WebElement errorMessage;
-
     public LoginPage(WebDriver driver) {
         super(driver);
     }
 
-    public void enterUsername(String username) {
-        log.info("Entering username: {}", username);
+    public DashboardPage login(String username, String password) {
+        if (username == null || username.trim().isEmpty()) {
+            log.error("Username cannot be null or empty");
+            return null;
+        }
+        if (password == null || password.trim().isEmpty()) {
+            log.error("Password cannot be null or empty");
+            return null;
+        }
+        log.info("Logging in with user: {}", username);
         type(txtUserName, username);
-    }
-
-    public void enterPassword(String password) {
-        log.info("Entering password");
         type(txtUserPass, password);
-    }
-
-    public DashboardPage clickLogin() {
-        log.info("Clicking login button");
         click(btnLogin);
         return new DashboardPage(driver);
     }
 
-    public DashboardPage login(String username, String password) {
-        log.info("Performing login with username: {}", username);
-        enterUsername(username);
-        enterPassword(password);
-        return clickLogin();
-    }
-
     public boolean isLoginButtonDisplayed() {
-        return isDisplayed(btnLogin);
+        log.info("Checking login button...");
+                return isDisplayed(btnLogin);
     }
 
-    public String getErrorMessage() {
-        log.info("Getting error message");
-        return getText(errorMessage);
-    }
+
 }
