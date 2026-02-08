@@ -1,25 +1,27 @@
 package com.orangehrm.base;
 
-import com.orangehrm.config.ConfigReader;
 import com.orangehrm.pages.DashboardPage;
 import com.orangehrm.pages.LoginPage;
+import com.orangehrm.utils.ConfigReader;
 import org.testng.annotations.BeforeMethod;
-
+/**
+ * Tests extending this class start with user logged in to Dashboard
+  */
 public class LoggedInBaseTest extends BaseTest {
 
     protected DashboardPage dashboardPage;
 
     @BeforeMethod
-    public void loginToApplication() {
-        // Since we extend BaseTest, 'driver' is already initialized here
-        LoginPage loginPage = new LoginPage(driver);
+    public void setupLogin() {
+        log.info("Auto-logging in before test");
 
-        dashboardPage = loginPage.login(
+        // Initialize login page
+        LoginPage loginPage = new LoginPage(getDriver());
+                dashboardPage = loginPage.login(
                 ConfigReader.getProperty("username"),
                 ConfigReader.getProperty("password")
         );
 
-        // Logical Check: Ensure we actually reached the dashboard
-        log.info("Auto-login performed for functional test execution.");
+        log.info("Login complete - Dashboard ready");
     }
 }
