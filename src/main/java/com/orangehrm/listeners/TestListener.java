@@ -9,15 +9,16 @@ import org.testng.ITestContext;
 import org.testng.ITestListener;
 import org.testng.ITestResult;
 
+/**
+ * TestNG listener for logging and reporting
+ */
 public class TestListener implements ITestListener {
 
     private static final Logger log = LogManager.getLogger(TestListener.class);
 
     @Override
     public void onStart(ITestContext context) {
-        log.info("========================================");
-        log.info("TEST SUITE STARTED: {}", context.getName());
-        log.info("========================================");
+        log.info("Starting test suite: {}", context.getName());
 
         // Initialize Extent Reports
         ExtentReportManager.initReports();
@@ -25,9 +26,7 @@ public class TestListener implements ITestListener {
 
     @Override
     public void onTestStart(ITestResult result) {
-        log.info("========================================");
-        log.info("TEST STARTED: {}", result.getName());
-        log.info("========================================");
+        log.info("Starting test: {}", result.getName());
 
         // Create test in Extent Report
         ExtentReportManager.createTest(result.getName());
@@ -36,16 +35,18 @@ public class TestListener implements ITestListener {
 
     @Override
     public void onTestSuccess(ITestResult result) {
-        log.info("TEST PASSED: {}", result.getName());
+        log.info("Test passed: {}", result.getName());
 
         // Log to Extent Report
-        ExtentReportManager.logPass("Test passed successfully: " + result.getName());
+        ExtentReportManager.logPass("Test passed");
     }
 
     @Override
     public void onTestFailure(ITestResult result) {
-        log.error("TEST FAILED: {}", result.getName());
-        log.error("Failure Reason: {}", result.getThrowable().getMessage());
+        log.error("Test failed: {}", result.getName());
+        if (result.getThrowable() != null) {
+            log.error("Reason: {}", result.getThrowable().getMessage());
+        }
 
         // Capture screenshot
         String screenshotPath = ScreenshotUtils.captureScreenshot(
@@ -54,36 +55,37 @@ public class TestListener implements ITestListener {
         );
 
         // Log to Extent Report
-        ExtentReportManager.logFail("Test failed: " + result.getName());
-        ExtentReportManager.logFail("Error: " + result.getThrowable().getMessage());
+        ExtentReportManager.logFail("Test failed");
+        if (result.getThrowable() != null) {
+            ExtentReportManager.logFail("Error: " + result.getThrowable().getMessage());
+        }
 
         // Attach screenshot to report
         if (screenshotPath != null) {
             ExtentReportManager.attachScreenshot(screenshotPath);
-            log.info("Screenshot captured and attached to report");
+            log.info("Screenshot attached to report");
         }
     }
 
     @Override
     public void onTestSkipped(ITestResult result) {
-        log.warn("TEST SKIPPED: {}", result.getName());
+        log.warn("Test skipped: {}", result.getName());
 
         // Log to Extent Report
-        ExtentReportManager.logSkip("Test skipped: " + result.getName());
+        ExtentReportManager.logSkip("Test skipped");
     }
 
     @Override
     public void onFinish(ITestContext context) {
-        log.info("========================================");
-        log.info("TEST SUITE FINISHED: {}", context.getName());
-        log.info("Total Tests: {}", context.getAllTestMethods().length);
-        log.info("Passed: {}", context.getPassedTests().size());
-        log.info("Failed: {}", context.getFailedTests().size());
-        log.info("Skipped: {}", context.getSkippedTests().size());
-        log.info("========================================");
+        log.info("Test suite finished: {}", context.getName());
+        log.info("Total: {}, Passed: {}, Failed: {}, Skipped: {}", 
+            context.getAllTestMethods().length,
+            context.getPassedTests().size(),
+            context.getFailedTests().size(),
+            context.getSkippedTests().size());
 
         // Flush Extent Reports
         ExtentReportManager.flushReports();
-        log.info("Report generated at: {}", ExtentReportManager.getReportPath());
+        log.info("Report saved to: {}", ExtentReportManager.getReportPath());
     }
 }
