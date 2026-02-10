@@ -5,6 +5,8 @@ import com.orangehrm.utils.ExtentReportManager;
 import com.orangehrm.utils.ScreenshotUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import java.awt.Desktop;
+import java.io.File;
 import org.testng.ITestContext;
 import org.testng.ITestListener;
 import org.testng.ITestResult;
@@ -87,5 +89,15 @@ public class TestListener implements ITestListener {
         // Flush Extent Reports
         ExtentReportManager.flushReports();
         log.info("Report saved to: {}", ExtentReportManager.getReportPath());
+        
+        // Auto-open report
+        try {
+            String reportPath = ExtentReportManager.getReportPath();
+            String cleanPath = new File(reportPath).getCanonicalPath();
+            Desktop.getDesktop().browse(new File(cleanPath).toURI());
+            log.info("Report opened successfully");
+        } catch (Exception e) {
+            log.warn("Could not open report: {}", e.getMessage());
+        }
     }
 }

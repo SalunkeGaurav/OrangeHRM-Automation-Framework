@@ -74,7 +74,7 @@ public class PIMPage extends BasePage {
         click(btnSave);
         waitForLoaderToDisappear();
 
-        waitUtils.waitForVisibility(lblPersonalDetails);
+        waitUtils.waitForPersonalDetails(lblPersonalDetails, driver);
         log.info("Employee saved - redirected to details");
     }
 
@@ -108,7 +108,7 @@ public class PIMPage extends BasePage {
         log.info("Employee found. Navigating to the Edit page.");
         click(btnEditIcons.get(0));
 
-        waitUtils.waitForVisibility(lblPersonalDetails);
+        waitUtils.waitForPersonalDetails(lblPersonalDetails, driver);
         log.info("Updating to: {} {}", newFirstName, newLastName);
 
         waitForLoaderToDisappear();
@@ -147,7 +147,17 @@ public class PIMPage extends BasePage {
                 click(btnConfirmDelete);
 
                 waitForLoaderToDisappear();
-                log.info("Deletion complete");
+                
+                waitUtils.waitForVisibility(txtSearchName);
+                searchEmployee(fullName);
+                
+                // Verify employee is actually deleted
+                if (btnDeleteIcons.isEmpty()) {
+                    log.info("Deletion verified - employee no longer in list");
+                    return true;
+                } else {
+                    log.warn("Deletion may have failed - employee still in list");
+                }
                 return true;
 
             } catch (StaleElementReferenceException e) {

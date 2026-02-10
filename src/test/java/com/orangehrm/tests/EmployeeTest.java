@@ -38,9 +38,9 @@ public class EmployeeTest extends LoggedInBaseTest {
     @Test(groups = {"employee", "crud"}, priority = 2, dependsOnMethods = "testAddEmployee", description = "Update both First and Last name")
     public void testUpdateEmployee() {
         PIMPage pim = dashboardPage.navigateToPIMPage();
-
-        String updatedFirstName = "Aman";
-        String updatedLastName = "Kumar";
+        String threadId = pim.getThreadSpecificID();
+        String updatedFirstName = "Aman" + threadId;
+        String updatedLastName = "Kumar" + threadId;
 
         log.info("Updating {} to {} {}", firstName, updatedFirstName, updatedLastName);
 

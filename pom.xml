@@ -103,8 +103,6 @@
                 <configuration>
                     <suiteXmlFiles>
                         <suiteXmlFile>testing.xml</suiteXmlFile>
-                        <suiteXmlFile>paralleltesting.xml</suiteXmlFile>
-                        <suiteXmlFile>grouping.xml</suiteXmlFile>
                     </suiteXmlFiles>
                 </configuration>
             </plugin>

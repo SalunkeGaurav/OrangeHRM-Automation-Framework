@@ -13,7 +13,7 @@ import org.testng.annotations.Test;
  */
 public class LoginTest extends BaseTest {
 
-    @Test(groups = {"login", "smoke"}, priority = 1, description = "Verify valid login and dashboard display")
+    @Test(groups = {"login", "smoke"}, priority = 0, description = "Verify valid login and dashboard display")
     public void testValidLogin() {
         log.info("Starting valid login test");
         LoginPage loginPage = new LoginPage(driver);
