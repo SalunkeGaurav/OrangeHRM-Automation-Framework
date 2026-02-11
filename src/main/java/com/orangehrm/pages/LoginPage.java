@@ -42,7 +42,7 @@ public class LoginPage extends BasePage {
 
     public boolean isLoginButtonDisplayed() {
         log.info("Checking login button...");
-                return isDisplayed(btnLogin);
+        return isDisplayed(btnLogin);
     }
 
 

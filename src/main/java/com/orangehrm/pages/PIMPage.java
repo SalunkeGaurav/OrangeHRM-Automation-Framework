@@ -138,32 +138,32 @@ public class PIMPage extends BasePage {
                 searchEmployee(fullName);
 
                 if (btnDeleteIcons.isEmpty()) {
-                    log.warn("Delete failed: No results found for {}", fullName);
+                    log.error("Delete test failed: Employee '{}' not found - cannot test deletion", fullName);
                     return false;
                 }
 
                 log.info("Clicking delete icon...");
                 click(btnDeleteIcons.get(0));
                 click(btnConfirmDelete);
-
                 waitForLoaderToDisappear();
-                
+                waitUtils.waitForInvisibility(btnConfirmDelete);
                 waitUtils.waitForVisibility(txtSearchName);
+                
                 searchEmployee(fullName);
                 
-                // Verify employee is actually deleted
+                // Verify employee is no longer in list
                 if (btnDeleteIcons.isEmpty()) {
                     log.info("Deletion verified - employee no longer in list");
                     return true;
                 } else {
-                    log.warn("Deletion may have failed - employee still in list");
+                    log.warn("Deletion failed - employee still in list, retrying...");
                 }
-                return true;
 
-            } catch (StaleElementReferenceException e) {
-                log.warn("Retrying delete... (Attempt {})", i + 1);
+            } catch (Exception e) {
+                log.warn("Retrying delete... (Attempt {}) - Error: {}", i + 1, e.getMessage());
             }
         }
+        log.error("Delete failed after 3 attempts for: {}", fullName);
         return false;
     }
 }

@@ -11,8 +11,8 @@ import org.openqa.selenium.support.FindBy;
 
 public class DashboardPage extends BasePage {
 
-    @FindBy(xpath = "//h6[text()='Dashboard']")
-    private WebElement lblDashboardHeader;
+    @FindBy(xpath = "//h6[normalize-space()='Dashboard']")
+    protected WebElement lblDashboardHeader;
 
     @FindBy(xpath = "//span[text()='PIM']")
     private WebElement linkPIM;
