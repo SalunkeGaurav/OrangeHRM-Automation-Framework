@@ -17,9 +17,9 @@ public class BaseTest {
     protected static final Logger log = LogManager.getLogger(BaseTest.class);
 
     @BeforeMethod
-    @Parameters("browser")
-    public void setUp(@Optional("chrome") String browser) {
-        log.info("Starting test setup for: {}", browser);
+    @Parameters({"browser", "os"})
+    public void setUp(@Optional("chrome") String browser, @Optional("windows") String os) {
+        log.info("Starting test setup for: {} on {}", browser, os);
 
         // Initialize driver using factory
         driver = DriverFactory.initDriver(browser);

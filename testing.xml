@@ -8,6 +8,7 @@
 
     <test name="All Tests">
         <parameter name="browser" value="chrome"/>
+        <parameter name="os" value="windows"/>
         <classes>
             <class name="com.orangehrm.tests.LoginTest"/>
             <class name="com.orangehrm.tests.EmployeeTest"/>
