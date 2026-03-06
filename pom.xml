@@ -95,7 +95,7 @@
 
     <build>
         <plugins>
-            <!-- Maven Surefire Plugin for running TestNG tests -->
+            <!-- Maven Surefire Plugin - Default for local testing -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -104,6 +104,10 @@
                     <suiteXmlFiles>
                         <suiteXmlFile>testing.xml</suiteXmlFile>
                     </suiteXmlFiles>
+                    <systemPropertyVariables>
+                        <execution_mode>local</execution_mode>
+                        <os>windows</os>
+                    </systemPropertyVariables>
                 </configuration>
             </plugin>
 
@@ -119,5 +123,55 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <!-- Docker Profile for containerized testing -->
+        <profile>
+            <id>docker</id>
+            <properties>
+                <execution_mode>remote</execution_mode>
+                <headless>true</headless>
+                <os>linux</os>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>3.2.5</version>
+                        <configuration>
+                            <suiteXmlFiles>
+                                <suiteXmlFile>testing-docker.xml</suiteXmlFile>
+                            </suiteXmlFiles>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        
+        <!-- Local Profile for local testing -->
+        <profile>
+            <id>local</id>
+            <properties>
+                <execution_mode>local</execution_mode>
+                <headless>false</headless>
+                <os>windows</os>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>3.2.5</version>
+                        <configuration>
+                            <suiteXmlFiles>
+                                <suiteXmlFile>testing.xml</suiteXmlFile>
+                            </suiteXmlFiles>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>

@@ -148,9 +148,9 @@ public class PIMPage extends BasePage {
                 waitForLoaderToDisappear();
                 waitUtils.waitForInvisibility(btnConfirmDelete);
                 waitUtils.waitForVisibility(txtSearchName);
-                
+
                 searchEmployee(fullName);
-                
+
                 // Verify employee is no longer in list
                 if (btnDeleteIcons.isEmpty()) {
                     log.info("Deletion verified - employee no longer in list");
