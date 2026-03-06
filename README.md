@@ -44,7 +44,7 @@ src/
 │
 ├── test/resources/
 │        ├── config.properties
-│        ├── log4j2.xml
+│        └── log4j2.xml
 ├── testng.xml                  # Default suite
 ├── grouping.xml                # Run by group (smoke, crud, etc.)
 ├── paralleltesting.xml         # Parallel browser runs
