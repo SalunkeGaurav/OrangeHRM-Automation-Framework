@@ -29,6 +29,6 @@ public class DashboardPage extends BasePage {
     public PIMPage navigateToPIMPage() {
         log.info("Opening PIM module");
         click(linkPIM);
-        return new PIMPage(driver);
+        return new PIMPage(getDriver());
     }
 }

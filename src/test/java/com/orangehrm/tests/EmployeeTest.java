@@ -29,7 +29,7 @@ public class EmployeeTest extends LoggedInBaseTest {
 
         pim.addEmployee(firstName, lastName, employeeId);
 
-        Assert.assertTrue(Objects.requireNonNull(driver.getCurrentUrl()).contains("viewPersonalDetails"),
+        Assert.assertTrue(Objects.requireNonNull(getDriver().getCurrentUrl()).contains("viewPersonalDetails"),
                 "Employee not saved or redirected");
 
         log.info("Employee added successfully");

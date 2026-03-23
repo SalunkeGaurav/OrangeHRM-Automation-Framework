@@ -6,6 +6,7 @@ import com.orangehrm.pages.DashboardPage;
 import com.orangehrm.testdata.TestDataProvider;
 import com.orangehrm.utils.ConfigReader;
 import org.testng.Assert;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 /**
@@ -16,7 +17,7 @@ public class LoginTest extends BaseTest {
     @Test(groups = {"login", "smoke"}, priority = 0, description = "Verify valid login and dashboard display")
     public void testValidLogin() {
         log.info("Starting valid login test");
-        LoginPage loginPage = new LoginPage(driver);
+        LoginPage loginPage = new LoginPage(getDriver());
 
         Assert.assertTrue(loginPage.isLoginButtonDisplayed(), "Login button not visible");
 
@@ -29,7 +30,7 @@ public class LoginTest extends BaseTest {
         log.info("Valid login test passed");
     }
 
-    @Test(groups = {"login", "negative"}, priority = 2, dataProvider = "invalidLoginData",
+    @Test(groups = {"login", "negative"}, priority = 0, dataProvider = "invalidLoginData",
             dataProviderClass = TestDataProvider.class,
             description = "Verify negative login scenarios")
     public void testInvalidLogin(String user, String pass) {

@@ -16,7 +16,14 @@ import java.time.Duration;
  */
 
 public class BasePage {
-    protected WebDriver driver;
+
+    public BasePage() {
+    }
+
+    protected WebDriver getDriver() {
+        return DriverFactory.getDriver();
+    }
+
     protected WaitUtils waitUtils;
     protected static final Logger log = LogManager.getLogger(BasePage.class);
 
@@ -24,13 +31,14 @@ public class BasePage {
     private final By globalLoader = By.cssSelector(".oxd-loading-spinner, .oxd-form-loader");
 
     public BasePage(WebDriver driver) {
-        this.driver = driver;
-        this.waitUtils = new WaitUtils(driver);
+        // Using thread-safe driver from DriverFactory
+        this.waitUtils = new WaitUtils();
         PageFactory.initElements(driver, this);
     }
 
     /**
      * Get unique thread ID for parallel tests
+     *
      * @return thread ID as string
      */
     public String getThreadSpecificID() {
@@ -43,7 +51,7 @@ public class BasePage {
     public void waitForLoaderToDisappear() {
         try {
             long timeout = Long.parseLong(ConfigReader.getProperty("explicitWait", "10"));
-            new WebDriverWait(driver, Duration.ofSeconds(timeout))
+            new WebDriverWait(getDriver(), Duration.ofSeconds(timeout))
                     .until(ExpectedConditions.invisibilityOfElementLocated(globalLoader));
         } catch (Exception e) {
             log.debug("No spinner found - page is ready to go!");
@@ -61,7 +69,7 @@ public class BasePage {
             element.click();
         } catch (Exception e) {
             log.warn("Regular click failed, trying JavaScript click for element: {}", element.toString());
-            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
+            ((JavascriptExecutor) getDriver()).executeScript("arguments[0].click();", element);
         }
     }
 

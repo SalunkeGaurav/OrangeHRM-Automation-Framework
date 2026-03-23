@@ -37,7 +37,7 @@ public class LoginPage extends BasePage {
         type(txtUserName, username);
         type(txtUserPass, password);
         click(btnLogin);
-        return new DashboardPage(driver);
+        return new DashboardPage(getDriver());
     }
 
     public boolean isLoginButtonDisplayed() {
