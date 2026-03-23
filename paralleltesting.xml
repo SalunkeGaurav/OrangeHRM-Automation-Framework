@@ -1,6 +1,10 @@
 <!-- paralleltesting.xml -->
 <suite name="OrangeHRM Parallel Suite" parallel="tests" thread-count="3">
 
+    <listeners>
+        <listener class-name="com.orangehrm.listeners.TestListener"/>
+    </listeners>
+
     <test name="Chrome - Login">
         <parameter name="browser" value="chrome"/>
         <classes>
