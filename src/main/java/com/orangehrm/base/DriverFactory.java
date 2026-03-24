@@ -35,6 +35,9 @@ import org.openqa.selenium.firefox.FirefoxOptions;
                 ChromeOptions chromeOptions = new ChromeOptions();
                 if (isHeadless) {
                     chromeOptions.addArguments("--headless=new");
+                    chromeOptions.addArguments("--no-sandbox");
+                    chromeOptions.addArguments("--disable-dev-shm-usage");
+                    chromeOptions.addArguments("--disable-gpu");
                 }
                 tlDriver.set(new ChromeDriver(chromeOptions));
                 break;
