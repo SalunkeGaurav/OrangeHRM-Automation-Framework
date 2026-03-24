@@ -33,11 +33,11 @@ import org.openqa.selenium.firefox.FirefoxOptions;
             case "chrome":
                 log.info("Starting Chrome (Headless: {})", isHeadless);
                 ChromeOptions chromeOptions = new ChromeOptions();
+                chromeOptions.addArguments("--no-sandbox");
+                chromeOptions.addArguments("--disable-dev-shm-usage");
+                chromeOptions.addArguments("--disable-gpu");
                 if (isHeadless) {
                     chromeOptions.addArguments("--headless=new");
-                    chromeOptions.addArguments("--no-sandbox");
-                    chromeOptions.addArguments("--disable-dev-shm-usage");
-                    chromeOptions.addArguments("--disable-gpu");
                 }
                 tlDriver.set(new ChromeDriver(chromeOptions));
                 break;

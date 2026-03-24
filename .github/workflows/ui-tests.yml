@@ -14,17 +14,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Java 21
+      - name: Set up Java 17
         uses: actions/setup-java@v4
         with:
-          java-version: '21'
+          java-version: '17'
           distribution: 'temurin'
 
       - name: Install Chrome
         uses: browser-actions/setup-chrome@v1
 
-      - name: Run tests headless
-        run: mvn clean test -Dheadless=true
+      - name: Set headless mode
+        run: sed -i 's/headless=false/headless=true/' src/test/resources/config.properties
+
+      - name: Run tests
+        run: mvn clean test
 
       - name: Upload Extent Report
         if: always()
